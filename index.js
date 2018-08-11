@@ -63,6 +63,8 @@ function createTime(displayData) {
           ' in the video.';
         changeCard(displayData, currentIndex);
         currentIndex++;
+        console.log(time);
+        console.log(time+scrubTime);
       }
       if (currentIndex > displayData.length - 1) {
         timeFunctions.resetTimer();
@@ -74,6 +76,7 @@ function createTime(displayData) {
     if (!isPaused) {
       clearInterval(timer);
       isPaused = true;
+      scrubTime = 0;
       timestamp.style.display = 'block';
     } else {
       timeFunctions.startTimer();
@@ -84,6 +87,7 @@ function createTime(displayData) {
       time = displayData[currentIndex + 1][0];
       currentIndex++;
       changeCard(displayData, currentIndex);
+      scrubTime = 0;
       timestamp.innerText =
         'jumped forward to card at ' +
         displayData[currentIndex][1] +
@@ -97,6 +101,7 @@ function createTime(displayData) {
       time = displayData[currentIndex - 1][0] - 10;
       currentIndex--;
       changeCard(displayData, currentIndex);
+      scrubTime = 0;
       timestamp.innerText =
         'jumped backward to card at ' +
         displayData[currentIndex][1] +
