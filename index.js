@@ -36,12 +36,26 @@ function transformData(csvData) {
   return dataArray;
 }
 
+function calcTimeStamp(time, scrubTime, isPaused) {
+ return `
+    Time Elapsed: ${time}ms
+    Scrub Time: ${scrubTime}ms
+    Paused: ${isPaused}
+    Commands:
+    Restart: r or shift + r
+    Pause/Play: space
+    Prev/Next Card: shift + left/right arrows
+    Scrub Back/Forward: left/right arrows`;
+};
+
 function createTime(displayData) {
   let time = 0;
   let currentIndex = 0;
   let isPaused = false;
   let timer;
   let scrubTime = 0;
+  let display = false;
+  timestamp.style.display = 'none';
 
   let timeFunctions = {};
 
@@ -54,13 +68,12 @@ function createTime(displayData) {
 
   timeFunctions.startTimer = () => {
     isPaused = false;
-    timestamp.style.display = 'none';
     timer = setInterval(function() {
       if (displayData[currentIndex][0] <= time + scrubTime) {
         timestamp.innerText =
-          'this slide should sync with ' +
+          'This slide should sync with ' +
           displayData[currentIndex][1] +
-          ' in the video.';
+          ' in the video.' + calcTimeStamp(time, scrubTime, isPaused);
         changeCard(displayData, currentIndex);
         currentIndex++;
         console.log(time);
@@ -77,7 +90,10 @@ function createTime(displayData) {
       clearInterval(timer);
       isPaused = true;
       scrubTime = 0;
-      timestamp.style.display = 'block';
+      timestamp.innerText =
+          'This slide should sync with ' +
+          displayData[currentIndex][1] +
+          ' in the video.' + calcTimeStamp(time, scrubTime, isPaused);
     } else {
       timeFunctions.startTimer();
     }
@@ -89,9 +105,9 @@ function createTime(displayData) {
       changeCard(displayData, currentIndex);
       scrubTime = 0;
       timestamp.innerText =
-        'jumped forward to card at ' +
+        'Jumped forward to card at ' +
         displayData[currentIndex][1] +
-        ' in the video.';
+        ' in the video.' + calcTimeStamp(time, scrubTime, isPaused);
     } else {
       timeFunctions.resetTimer();
     }
@@ -103,9 +119,9 @@ function createTime(displayData) {
       changeCard(displayData, currentIndex);
       scrubTime = 0;
       timestamp.innerText =
-        'jumped backward to card at ' +
+        'Jumped backward to card at ' +
         displayData[currentIndex][1] +
-        ' in the video.';
+        ' in the video.' + calcTimeStamp(time, scrubTime, isPaused);
     } else {
       timeFunctions.resetTimer();
     }
@@ -116,13 +132,26 @@ function createTime(displayData) {
   timeFunctions.addScrub = () => {
     scrubTime = scrubTime + 100;
   };
+  timeFunctions.displayTimeStamp = () => {
+    if(!display){
+      timestamp.style.display = 'block';
+      timestamp.innerText =
+          'This slide should sync with ' +
+          displayData[currentIndex][1] +
+          ' in the video.' + calcTimeStamp(time, scrubTime, isPaused);
+      display = true;
+    } else {
+      timestamp.style.display = 'none';
+      display = false;
+    }
+  };
   return timeFunctions;
 }
 
 function changeCard(displayData, index) {
   title.innerText = displayData[index][2];
   subtitle.innerText = displayData[index][3];
-  card.style.backgroundColor = displayData[index][4];
+  background.style.backgroundColor = displayData[index][4];
   card.style.color = displayData[index][5];
 }
 
@@ -130,10 +159,6 @@ window.onload = function() {
   const cardData = transformData(data);
   console.log(cardData);
   const session = createTime(cardData);
-  const card = document.getElementById('card');
-  const title = document.getElementById('title');
-  const subtitle = document.getElementById('subtitle');
-  const timestamp = document.getElementById('timestamp');
 
   session.startTimer();
 
@@ -151,6 +176,8 @@ window.onload = function() {
       session.addScrub();
     } else if (key === 'ArrowLeft') {
       session.subtractScrub();
+    } else if (key === 'Enter') {
+      session.displayTimeStamp();
     } 
   });
 };
