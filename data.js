@@ -1,5 +1,6 @@
 //important! Data must be encased in backticks, not quotation marks
 //data must be only comma separated- particularly the time information and colors
+// Eric test to write to this file
 
 const data = `
 
